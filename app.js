@@ -31,19 +31,19 @@ app.get('/api/:username', function(req, res) {
     var username = req.params.username;
     client.get(username, function(error, result) {
         if (result) {
-          res.send({ "totalStars": result, "source": "redis cache" });
+          res.send({ "stars": result, "from": "redis cache" });
         } else {
             
           
           
           getuserrepo(username)
             .then(countstars)
-            .then(function(totalStars) {
-              client.setex(username, 60, totalStars);
-              res.send({ "totalStars": totalStars, "source": "GitHub API" });
+            .then(function(stars) {
+              client.setex(username, 300, stars);
+              res.send({ "stars": stars, "from": "GitHubs API" });
             }).catch(function(response) {
               if (response.status === 404){
-                res.send('The GitHub username could not be found. Try "coligo-io" as an example!');
+                res.send('username not found');
               } else {
                 res.send(response);
               }
